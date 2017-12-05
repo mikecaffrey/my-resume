@@ -15,7 +15,7 @@ class Professor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     department = db.Column(db.Text)
-    courses = db.relationship('Course', backref='professor')
+    courses = db.relationship('Course', backref='professor', cascade='cascade'
 
 
 class Course(db.Model):
@@ -97,6 +97,16 @@ def add_professors():
 
         professor = Professor(name=name, department=department)
         db.session.add(professor)
+        db.session.commit()
+        return redirect(url_for('show_all_professors'))
+
+@app.route('/professors/delete/<int:id>', methods=['GET', 'POST'])
+def delete_professor(id):
+    professor = Professor.query.filter_by(id=id).first()
+    if request.method == 'GET':
+        return render_template('professor-delete.html', professor=professor)
+    if request.method == 'POST':
+        db.session.delete(professor)
         db.session.commit()
         return redirect(url_for('show_all_professors'))
 
